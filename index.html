@@ -1,0 +1,1085 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Mi Bitácora de Proyectos</title>
+<meta name="theme-color" content="#2e5e8c">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" type="image/png" href="icon-192.png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Bitácora">
+
+<style>
+/* =====================================================================
+   COLORES (los mismos de tu Hoja de Trabajo; cámbialos aquí)
+   ===================================================================== */
+:root {
+  --azul: #2e5e8c;          /* títulos */
+  --terracota: #af664e;     /* encabezados de tablas y botones */
+  --terracota-oscuro: #8f523e;
+  --rosado: #f9e5dd;        /* celdas de etiquetas */
+  --borde: #f0d6cc;         /* líneas de las tablas */
+  --fondo: #fdf8f6;         /* fondo general */
+  --texto: #3f3633;
+  --suave: #8a7a74;
+  --titulos: "Open Sans", "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+  --cuerpo: "Futura", "Century Gothic", "Jost", "Avenir Next", "Trebuchet MS", sans-serif;
+}
+
+* { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+body { margin: 0; background: var(--fondo); color: var(--texto); font-family: var(--cuerpo); font-size: 16px; line-height: 1.45; }
+main { max-width: 1240px; margin: 0 auto; padding: 1.25rem 1rem 3rem; }
+h1, h2, h3 { font-family: var(--titulos); color: var(--azul); line-height: 1.2; }
+h1 { font-size: 1.9rem; margin: 0; }
+h2 { font-size: 1.3rem; margin: 0 0 0.6rem; }
+button, input, select, textarea { font-family: var(--cuerpo); font-size: 1rem; color: var(--texto); }
+
+/* --- Cabecera --- */
+.cabecera { display: flex; align-items: center; gap: 0.9rem; flex-wrap: wrap; margin-bottom: 1.2rem; }
+.cabecera img { width: 64px; height: auto; }
+.cabecera .ovillo { font-size: 2.4rem; }
+.cabecera .lema { font-family: var(--titulos); font-variant: small-caps; letter-spacing: 0.04em; font-weight: 700; font-size: 0.95rem; color: var(--texto); }
+.cabecera .espacio { flex: 1; }
+
+/* --- Botones --- */
+.boton {
+  background: var(--terracota); color: #fff; border: none; border-radius: 8px;
+  padding: 0.6rem 1rem; font-weight: 700; cursor: pointer; white-space: nowrap;
+}
+.boton:hover { background: var(--terracota-oscuro); }
+.boton.secundario { background: #fff; color: var(--terracota); border: 1.5px solid var(--terracota); }
+.boton.secundario:hover { background: var(--rosado); }
+.boton.peligro { background: #fff; color: #a33; border: 1.5px solid #c88; }
+.botonera { display: flex; flex-wrap: wrap; gap: 0.5rem; }
+
+/* --- Lista de proyectos --- */
+.filtros { display: flex; flex-wrap: wrap; gap: 0.4rem; margin: 0.4rem 0 1rem; }
+.filtro { background: #fff; border: 1.5px solid var(--borde); border-radius: 999px; padding: 0.35rem 0.9rem; cursor: pointer; }
+.filtro.activo { background: var(--azul); border-color: var(--azul); color: #fff; }
+.tarjetas { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 270px), 1fr)); gap: 1rem; }
+.tarjeta {
+  background: #fff; border: 1px solid var(--borde); border-radius: 10px; padding: 1rem;
+  cursor: pointer; display: flex; flex-direction: column; gap: 0.35rem; text-align: left;
+}
+.tarjeta:hover { border-color: var(--terracota); box-shadow: 0 2px 8px rgba(175, 102, 78, 0.15); }
+.tarjeta h3 { margin: 0; font-size: 1.15rem; }
+.tarjeta .dato { font-size: 0.92rem; color: var(--suave); }
+.estado { display: inline-block; font-size: 0.8rem; font-weight: 700; padding: 0.15rem 0.6rem; border-radius: 999px; align-self: flex-start; }
+.estado-por-empezar { background: #eef1f5; color: #4a5a6e; }
+.estado-en-curso { background: var(--rosado); color: var(--terracota-oscuro); }
+.estado-en-pausa { background: #f6efd9; color: #7a6420; }
+.estado-terminado { background: #e2eef8; color: var(--azul); }
+.vacio { background: #fff; border: 1.5px dashed var(--borde); border-radius: 10px; padding: 2rem 1rem; text-align: center; color: var(--suave); }
+.respaldo { margin-top: 2rem; padding-top: 1rem; border-top: 1px solid var(--borde); font-size: 0.92rem; color: var(--suave); }
+.respaldo p { margin: 0 0 0.6rem; }
+
+/* --- Ficha: columnas que se adaptan al ancho --- */
+.barra-ficha { display: flex; flex-wrap: wrap; gap: 0.5rem; align-items: center; margin-bottom: 1rem; }
+.barra-ficha .espacio { flex: 1; }
+.guardado { font-size: 0.9rem; color: var(--suave); }
+.titulo-ficha { width: 100%; font-family: var(--titulos); font-size: 1.7rem; font-weight: 700; color: var(--azul); border: none; border-bottom: 2px solid var(--borde); background: transparent; padding: 0.2rem 0; margin-bottom: 1rem; }
+.titulo-ficha:focus { outline: none; border-bottom-color: var(--terracota); }
+
+.secciones { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 480px), 1fr)); gap: 1.25rem; align-items: start; }
+.seccion { background: #fff; border: 1px solid var(--borde); border-radius: 10px; padding: 1rem; min-width: 0; }
+.seccion.ancha { grid-column: 1 / -1; }
+
+/* Filas tipo tabla (como tu hoja) */
+.tabla { border: 1px solid var(--borde); border-radius: 6px; overflow: hidden; }
+.tabla + .tabla { margin-top: 0.75rem; }
+.tabla-titulo { background: var(--terracota); color: #fff; font-weight: 700; padding: 0.45rem 0.7rem; display: flex; justify-content: space-between; gap: 0.5rem; }
+.fila { display: grid; grid-template-columns: minmax(130px, 42%) 1fr; border-top: 1px solid var(--borde); }
+.tabla > .fila:first-child { border-top: none; }
+.fila > .etiqueta { background: var(--rosado); padding: 0.5rem 0.7rem; display: flex; align-items: center; font-size: 0.97rem; }
+.fila > .valor { padding: 0.3rem 0.45rem; display: flex; align-items: center; gap: 0.35rem; min-width: 0; flex-wrap: wrap; }
+
+.valor input[type="text"], .valor input[type="date"], .valor select {
+  width: 100%; min-width: 0; border: 1px solid transparent; border-radius: 5px; padding: 0.38rem 0.45rem; background: transparent;
+}
+.valor input:hover, .valor select:hover { border-color: var(--borde); }
+.valor input:focus, .valor select:focus, textarea:focus { outline: none; border-color: var(--terracota); background: #fffdfc; }
+.valor input.invalido { border-color: #c0392b; }
+input::placeholder, textarea::placeholder { color: #c2b3ad; }
+
+/* Par de casillas en la misma línea: cm | in  o  m | yd */
+.par { display: grid; grid-template-columns: 1fr auto 1fr auto; gap: 0.3rem; align-items: center; width: 100%; }
+.par input { text-align: right; }
+.unidad { font-size: 0.85rem; color: var(--suave); min-width: 1.4rem; }
+.salida { font-weight: 700; color: var(--azul); padding: 0.38rem 0.45rem; }
+.salida.vacia { font-weight: 400; color: #c2b3ad; }
+
+/* Opciones (prenda y construcción) */
+.opciones { display: flex; flex-wrap: wrap; gap: 0.3rem 1rem; padding: 0.35rem 0.2rem; }
+.opciones label { display: flex; align-items: center; gap: 0.35rem; cursor: pointer; }
+.opciones input { width: 1.15rem; height: 1.15rem; accent-color: var(--terracota); margin: 0; }
+
+/* Tabla de cálculos */
+.calculos { width: 100%; border-collapse: collapse; }
+.calculos th { background: var(--terracota); color: #fff; text-align: left; padding: 0.45rem 0.6rem; font-weight: 700; }
+.calculos td { border-top: 1px solid var(--borde); padding: 0.35rem 0.5rem; vertical-align: middle; }
+.calculos td:first-child { background: var(--rosado); }
+.calculos .numero { font-weight: 700; color: var(--azul); white-space: nowrap; }
+.calculos input[type="text"], .calculos select { width: 100%; border: 1px solid var(--borde); border-radius: 5px; padding: 0.35rem 0.45rem; background: #fff; }
+.calculos .quitar { background: none; border: none; color: #a33; cursor: pointer; font-size: 1.1rem; padding: 0.2rem; }
+.nota-tabla { font-size: 0.88rem; color: var(--suave); margin: 0.5rem 0 0; }
+
+/* Metraje */
+.resultado { background: var(--rosado); border-left: 4px solid var(--terracota); border-radius: 6px; padding: 0.6rem 0.8rem; margin-top: 0.6rem; font-size: 0.97rem; }
+.resultado b { color: var(--azul); }
+.resultado.vacio-r { background: transparent; border: 1px dashed var(--borde); color: var(--suave); font-style: italic; }
+
+textarea { width: 100%; min-height: 9rem; border: 1px solid var(--borde); border-radius: 6px; padding: 0.6rem; resize: vertical; line-height: 1.5; }
+
+/* Celular: etiquetas arriba cuando no hay espacio */
+@media (max-width: 520px) {
+  main { padding: 1rem 0.7rem 3rem; }
+  h1 { font-size: 1.5rem; }
+  .fila { grid-template-columns: 1fr; }
+  .fila > .etiqueta { padding: 0.4rem 0.7rem; font-weight: 700; }
+  .calculos th:nth-child(2), .calculos td:nth-child(2) { min-width: 0; }
+  .titulo-ficha { font-size: 1.4rem; }
+}
+/* Celular: la tabla de cálculos se muestra como tarjetas, una por sección */
+@media (max-width: 680px) {
+  .calculos thead { display: none; }
+  .calculos, .calculos tbody, .calculos tr, .calculos td { display: block; width: 100%; }
+  .calculos tr { border: 1px solid var(--borde); border-radius: 6px; margin-bottom: 0.6rem; overflow: hidden; background: #fff; }
+  .calculos td { border-top: none; padding: 0.45rem 0.6rem; }
+  .calculos td:first-child { font-weight: 700; }
+  .calculos td:empty { display: none; }
+  .calculos td.numero, .calculos tr[data-extra] td:nth-child(3) { font-size: 1.1rem; }
+  .calculos tr[data-extra] td:last-child { text-align: right; padding-top: 0; }
+}
+
+.aviso {
+  position: fixed; left: 50%; bottom: 1.5rem; transform: translateX(-50%);
+  background: var(--texto); color: #fff; padding: 0.7rem 1.2rem; border-radius: 8px;
+  opacity: 0; pointer-events: none; transition: opacity 0.25s; max-width: 90%; text-align: center; z-index: 5;
+}
+.aviso.visible { opacity: 1; }
+.pie { margin-top: 2.5rem; font-family: var(--titulos); font-size: 0.85rem; font-weight: 700; color: var(--suave); }
+
+/* --- Impresión: la ficha como una hoja limpia --- */
+@media print {
+  @page { margin: 12mm; }
+  body { background: #fff; font-size: 11pt; }
+  .no-imprimir, .cabecera .espacio, .cabecera .botonera, .quitar { display: none !important; }
+  main { max-width: none; padding: 0; }
+  .secciones { grid-template-columns: 1fr 1fr; gap: 10px; }
+  .seccion { break-inside: avoid; border: none; padding: 0; }
+  .seccion.ancha { grid-column: 1 / -1; }
+  .valor input, .valor select, .calculos input, .calculos select, textarea { border: none !important; background: transparent !important; }
+  .titulo-ficha { border-bottom: none; }
+  * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+}
+</style>
+</head>
+<body>
+<main>
+  <header class="cabecera">
+    <img id="logo" src="Logo.png.png" alt="Logo">
+    <span class="ovillo" id="logo-reemplazo" style="display:none">🧶</span>
+    <div>
+      <div class="lema" id="lema"></div>
+      <h1 id="titulo-app"></h1>
+    </div>
+    <div class="espacio"></div>
+    <div class="botonera no-imprimir">
+      <button class="boton" id="nuevo">➕ Nuevo proyecto</button>
+    </div>
+  </header>
+
+  <section id="vista-lista"></section>
+  <section id="vista-ficha" hidden></section>
+
+  <div class="pie" id="pie"></div>
+</main>
+
+<input type="file" id="archivo-importar" accept=".json,application/json" hidden>
+<div class="aviso" id="aviso"></div>
+
+<script>
+/* =====================================================================
+   TEXTOS QUE PUEDES CAMBIAR (solo lo que está entre comillas)
+   ===================================================================== */
+const CONFIG = {
+  tituloApp: "Mi Bitácora de Proyectos",
+  lema: "Una prenda tejida por ti es única",
+  pie: "© 2026 Susana Lobos G. · Susana Lobos desiGns®",
+  estados: ["Por empezar", "En curso", "En pausa", "Terminado"],
+  prendas: ["Pullover", "Vest", "Cárdigan"],
+  construcciones: ["Top-down", "Bottom-up"],
+
+  // ENLACE DE TU PLANILLA DE GOOGLE
+  // Pega entre las comillas el enlace que te da Apps Script (termina en /exec).
+  // Déjalo vacío ("") si no quieres enviar los proyectos a una planilla.
+  urlPlanilla: "https://script.google.com/macros/s/AKfycbwCBnidchabDfJotjg0MoG6MOvRe9a86m9XCTa0EfnYRbRjD6pYZ2jsIYscOCJDLhFC/exec"
+};
+
+/* =====================================================================
+   DE AQUÍ HACIA ABAJO ESTÁ EL FUNCIONAMIENTO (no es necesario tocarlo)
+   ===================================================================== */
+const CM_POR_PULGADA = 2.54;
+const METROS_POR_YARDA = 0.9144;
+const CLAVE = "bitacora_proyectos_v1";
+
+document.getElementById("titulo-app").textContent = CONFIG.tituloApp;
+document.getElementById("lema").textContent = CONFIG.lema;
+document.getElementById("pie").textContent = CONFIG.pie;
+document.title = CONFIG.tituloApp;
+document.getElementById("logo").addEventListener("error", function () {
+  this.style.display = "none";
+  document.getElementById("logo-reemplazo").style.display = "inline";
+});
+
+// ---------- Utilidades ----------
+const $ = (sel, raiz = document) => raiz.querySelector(sel);
+const $$ = (sel, raiz = document) => Array.from(raiz.querySelectorAll(sel));
+
+function leer(texto) {
+  if (texto === null || texto === undefined) return null;
+  const t = String(texto).trim().replace(",", ".");
+  if (t === "" || t === "-") return null;
+  const n = Number(t);
+  return isFinite(n) ? n : NaN;
+}
+// Hasta 2 decimales, sin ceros sobrantes, con coma decimal (22,5)
+function fmt(n, decimales = 2) {
+  if (n === null || n === undefined || isNaN(n)) return "";
+  const f = Math.pow(10, decimales);
+  const r = Math.round(Number((n * f).toFixed(6))) / f;
+  return String(parseFloat(r.toFixed(decimales))).replace(".", ",");
+}
+function redondear(n) { return Math.round(Number(n.toFixed(10))); }
+function escapar(t) {
+  return String(t ?? "").replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+}
+function hoyISO() {
+  const d = new Date();
+  return d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0") + "-" + String(d.getDate()).padStart(2, "0");
+}
+function fechaBonita(iso) {
+  if (!iso) return "";
+  const [a, m, d] = iso.split("-");
+  return d + "/" + m + "/" + a;
+}
+function nuevoId() { return Date.now().toString(36) + Math.random().toString(36).slice(2, 7); }
+function claseEstado(e) { return "estado-" + String(e || "").toLowerCase().replace(/\s+/g, "-"); }
+
+let temporizadorAviso;
+function aviso(texto) {
+  const el = $("#aviso");
+  el.textContent = texto;
+  el.classList.add("visible");
+  clearTimeout(temporizadorAviso);
+  temporizadorAviso = setTimeout(() => el.classList.remove("visible"), 2600);
+}
+
+// ---------- Guardado en este dispositivo ----------
+let almacenamientoDisponible = true;
+function cargarProyectos() {
+  try {
+    const datos = JSON.parse(localStorage.getItem(CLAVE) || "[]");
+    return Array.isArray(datos) ? datos : [];
+  } catch (e) {
+    almacenamientoDisponible = false;
+    return [];
+  }
+}
+let proyectos = cargarProyectos();
+function guardarProyectos() {
+  try {
+    localStorage.setItem(CLAVE, JSON.stringify(proyectos));
+    return true;
+  } catch (e) {
+    almacenamientoDisponible = false;
+    aviso("No se pudo guardar en este navegador. Descarga una copia de seguridad.");
+    return false;
+  }
+}
+const buscar = id => proyectos.find(p => p.id === id);
+
+// ---------- Envío a tu planilla de Google ----------
+const CLAVE_PLANILLA = "bitacora_clave_planilla";
+const CLAVE_PENDIENTES = "bitacora_pendientes_planilla";
+const CLAVE_ULTIMO_ENVIO = "bitacora_ultimo_envio";
+
+function leerLocal(clave, defecto) {
+  try { const t = localStorage.getItem(clave); return t === null ? defecto : JSON.parse(t); } catch (e) { return defecto; }
+}
+function escribirLocal(clave, valor) {
+  try { localStorage.setItem(clave, JSON.stringify(valor)); } catch (e) {}
+}
+
+let pendientes = leerLocal(CLAVE_PENDIENTES, { guardar: [], eliminar: [] });
+let estadoPlanilla = "";   // "", "enviando", "ok", "error-clave", "sin-conexion", "error"
+
+function planillaConfigurada() { return !!(CONFIG.urlPlanilla.trim() && leerLocal(CLAVE_PLANILLA, "")); }
+
+function marcarPendiente(id) {
+  if (!pendientes.guardar.includes(id)) pendientes.guardar.push(id);
+  pendientes.eliminar = pendientes.eliminar.filter(x => x !== id);
+  escribirLocal(CLAVE_PENDIENTES, pendientes);
+  programarEnvio();
+}
+function marcarEliminado(id) {
+  pendientes.guardar = pendientes.guardar.filter(x => x !== id);
+  if (!pendientes.eliminar.includes(id)) pendientes.eliminar.push(id);
+  escribirLocal(CLAVE_PENDIENTES, pendientes);
+  programarEnvio();
+}
+function cantidadPendientes() { return pendientes.guardar.length + pendientes.eliminar.length; }
+
+// Convierte un proyecto en una fila de la planilla (una columna por dato, medidas en cm)
+function filaPlanilla(p) {
+  const v = p.v;
+  const n = x => (x === null || x === undefined || x === "" || isNaN(x)) ? "" : Math.round(x * 100) / 100;
+  const ptsCm = v.pts_10 != null ? v.pts_10 / 10 : null;
+  const vtasCm = v.vtas_10 != null ? v.vtas_10 / 10 : null;
+  const calc = (cm, porCm) => (cm != null && porCm != null) ? redondear(cm * porCm) : "";
+  const contorno = medida(p, "contorno_prenda");
+  const madejasNecesarias = (v.necesito != null && v.metraje_madeja) ? Math.ceil(Number((v.necesito / v.metraje_madeja).toFixed(6))) : "";
+  const metrosSobrantes = (v.sobrante_g != null && v.metraje_madeja && v.gramos_madeja) ? v.sobrante_g * v.metraje_madeja / v.gramos_madeja : null;
+  const otras = (p.extras || []).filter(f => f.nombre || f.cm != null).map(f => {
+    const r = calc(f.cm, f.tipo === "vtas" ? vtasCm : ptsCm);
+    return (f.nombre || "Sección") + ": " + (f.cm != null ? fmt(f.cm) + " cm" : "—") + (r !== "" ? " = " + r + " " + f.tipo : "");
+  }).join("; ");
+  return {
+    "ID": p.id,
+    "Última actualización": new Date(p.actualizado || Date.now()).toLocaleString("es-CL"),
+    "Proyecto": v.nombre || "",
+    "Estado": v.estado || CONFIG.estados[0],
+    "Fecha de inicio": v.fecha_inicio || "",
+    "Fecha de término": v.fecha_termino || "",
+    "Tipo de prenda": v.prenda || "",
+    "Construcción": v.construccion || "",
+    "Hilado": v.hilado || "",
+    "Composición": v.composicion || "",
+    "Grosor": v.grosor || "",
+    "Color": v.color || "",
+    "Lote de tintura": v.lote || "",
+    "Tienda / proveedor": v.tienda || "",
+    "Aguja": v.aguja || "",
+    "Metraje por madeja (m)": n(v.metraje_madeja),
+    "Metraje por madeja (yd)": n(v.metraje_madeja != null ? v.metraje_madeja / METROS_POR_YARDA : null),
+    "Peso por madeja (g)": n(v.gramos_madeja),
+    "Madejas que tengo": n(v.madejas_compradas),
+    "Pts en 10 cm": n(v.pts_10),
+    "Vtas en 10 cm": n(v.vtas_10),
+    "Pts/cm": n(ptsCm),
+    "Vtas/cm": n(vtasCm),
+    "Cuerpo: contorno pecho (cm)": n(v.c_pecho),
+    "Cuerpo: contorno cuello (cm)": n(v.c_cuello),
+    "Cuerpo: contorno manga (cm)": n(v.c_manga),
+    "Cuerpo: ancho de espalda (cm)": n(v.ancho_espalda),
+    "Cuerpo: contorno puño (cm)": n(v.c_puno),
+    "Cuerpo: largo sisa (cm)": n(v.largo_sisa),
+    "Prenda: holgura (cm)": n(v.holgura),
+    "Prenda: contorno pecho (cm)": n(contorno),
+    "Prenda: largo total (cm)": n(v.largo_total),
+    "Prenda: largo manga sin puño (cm)": n(v.largo_manga_sin_puno),
+    "Prenda: largo total manga (cm)": n(v.largo_total_manga),
+    "Prenda: profundidad escote (cm)": n(v.prof_escote),
+    "Borde inferior (cm)": n(v.borde_inferior),
+    "Pts contorno pecho": calc(contorno, ptsCm),
+    "Vtas largo total": calc(v.largo_total, vtasCm),
+    "Pts escote - cuello": calc(v.c_cuello, ptsCm),
+    "Vtas manga": calc(v.largo_total_manga, vtasCm),
+    "Vtas borde inferior": calc(v.borde_inferior, vtasCm),
+    "Otras secciones": otras,
+    "Metraje que pide el patrón (m)": n(v.necesito),
+    "Madejas necesarias": madejasNecesarias,
+    "Gramos sobrantes": n(v.sobrante_g),
+    "Metros sobrantes": n(metrosSobrantes),
+    "Notas": v.notas || ""
+  };
+}
+
+let temporizadorEnvio;
+function programarEnvio(espera = 3000) {
+  clearTimeout(temporizadorEnvio);
+  temporizadorEnvio = setTimeout(enviarPendientes, espera);
+}
+
+let enviando = false;
+let enviadoInicio = 0;
+async function enviarPendientes() {
+  if (!planillaConfigurada() || enviando || cantidadPendientes() === 0) { actualizarIndicadores(); return; }
+  if (navigator.onLine === false) { estadoPlanilla = "sin-conexion"; actualizarIndicadores(); return; }
+  enviando = true;
+  enviadoInicio = Date.now();
+  estadoPlanilla = "enviando";
+  actualizarIndicadores();
+  const lote = { guardar: [...pendientes.guardar], eliminar: [...pendientes.eliminar] };
+  const datos = {
+    clave: leerLocal(CLAVE_PLANILLA, ""),
+    proyectos: lote.guardar.map(buscar).filter(Boolean).map(filaPlanilla),
+    eliminar: lote.eliminar
+  };
+  try {
+    // Se envía como texto simple para que Google lo acepte desde cualquier sitio
+    const respuesta = await fetch(CONFIG.urlPlanilla.trim(), { method: "POST", body: JSON.stringify(datos) });
+    const resultado = await respuesta.json();
+    if (resultado.ok) {
+      // Solo se quitan de la lista los que se enviaron (si cambiaste algo mientras tanto, queda pendiente)
+      const enviadoEn = Date.now();
+      pendientes.guardar = pendientes.guardar.filter(id => {
+        const p = buscar(id);
+        return lote.guardar.includes(id) ? (p && (p.actualizado || 0) > enviadoInicio) : true;
+      });
+      pendientes.eliminar = pendientes.eliminar.filter(id => !lote.eliminar.includes(id));
+      escribirLocal(CLAVE_PENDIENTES, pendientes);
+      escribirLocal(CLAVE_ULTIMO_ENVIO, enviadoEn);
+      estadoPlanilla = "ok";
+    } else {
+      estadoPlanilla = resultado.error === "clave" ? "error-clave" : "error";
+    }
+  } catch (e) {
+    estadoPlanilla = navigator.onLine === false ? "sin-conexion" : "error";
+  }
+  enviando = false;
+  actualizarIndicadores();
+  if (estadoPlanilla === "ok" && cantidadPendientes() > 0) programarEnvio(1500);
+}
+function textoEstadoPlanilla() {
+  if (!CONFIG.urlPlanilla.trim()) return "";
+  if (!leerLocal(CLAVE_PLANILLA, "")) return "☁️ Falta la clave de la planilla";
+  const n = cantidadPendientes();
+  switch (estadoPlanilla) {
+    case "enviando": return "☁️ Enviando a la planilla…";
+    case "error-clave": return "⚠️ La clave de la planilla no coincide";
+    case "sin-conexion": return "☁️ Sin internet: " + n + " por enviar";
+    case "error": return "⚠️ No se pudo enviar a la planilla" + (n ? " (" + n + " por enviar)" : "");
+  }
+  return n ? "☁️ " + n + " por enviar" : "☁️ En la planilla";
+}
+
+function actualizarIndicadores() {
+  const enFicha = $("#estado-planilla");
+  if (enFicha) enFicha.textContent = textoEstadoPlanilla() ? "· " + textoEstadoPlanilla() : "";
+  const enLista = $("#estado-planilla-lista");
+  if (enLista) {
+    const ultimo = leerLocal(CLAVE_ULTIMO_ENVIO, 0);
+    enLista.innerHTML = escapar(textoEstadoPlanilla()) +
+      (ultimo ? `<br><span style="font-size:0.88rem">Último envío: ${escapar(new Date(ultimo).toLocaleString("es-CL"))}</span>` : "");
+  }
+}
+
+window.addEventListener("online", () => programarEnvio(500));
+
+// ---------- Definición de la ficha ----------
+// tipo "par": dos casillas en la misma línea (se guarda en cm o en metros)
+const CUERPO = [
+  ["c_pecho", "Contorno pecho"], ["c_cuello", "Contorno cuello"], ["c_manga", "Contorno manga"],
+  ["ancho_espalda", "Ancho de espalda"], ["c_puno", "Contorno puño"], ["largo_sisa", "Largo sisa"]
+];
+const PRENDA = [
+  ["largo_total", "Largo total"], ["largo_manga_sin_puno", "Largo manga sin puño"],
+  ["largo_total_manga", "Largo total manga"], ["prof_escote", "Profundidad del escote"]
+];
+// Filas fijas de la tabla de cálculos: [nombre, de dónde sale la medida, pts o vtas]
+const CALCULOS_FIJOS = [
+  ["Contorno pecho (prenda)", "contorno_prenda", "pts"],
+  ["Largo total", "largo_total", "vtas"],
+  ["Escote - cuello", "c_cuello", "pts"],
+  ["Manga", "largo_total_manga", "vtas"],
+  ["Borde inferior", "borde_inferior", "vtas"]
+];
+
+function filaTexto(campo, etiqueta, placeholder = "") {
+  return `<div class="fila"><div class="etiqueta">${etiqueta}</div>
+    <div class="valor"><input type="text" data-campo="${campo}" placeholder="${placeholder}"></div></div>`;
+}
+function filaNumero(campo, etiqueta, placeholder = "") {
+  return `<div class="fila"><div class="etiqueta">${etiqueta}</div>
+    <div class="valor"><input type="text" inputmode="decimal" data-num="${campo}" placeholder="${placeholder}"></div></div>`;
+}
+// Par cm/in (factor 2,54) o m/yd (factor 0,9144). Se guarda en la primera unidad.
+function filaPar(campo, etiqueta, tipo = "cm", permiteNegativo = false) {
+  const [u1, u2] = tipo === "cm" ? ["cm", "in"] : ["m", "yd"];
+  const modo = permiteNegativo ? "text" : "decimal";
+  return `<div class="fila"><div class="etiqueta">${etiqueta}</div>
+    <div class="valor"><div class="par">
+      <input type="text" inputmode="${modo}" data-par="${campo}" data-tipo="${tipo}" data-u="1" aria-label="${etiqueta} en ${u1}">
+      <span class="unidad">${u1}</span>
+      <input type="text" inputmode="${modo}" data-par="${campo}" data-tipo="${tipo}" data-u="2" aria-label="${etiqueta} en ${u2}">
+      <span class="unidad">${u2}</span>
+    </div></div></div>`;
+}
+function filaSalidaPar(id, etiqueta, u1, u2) {
+  return `<div class="fila"><div class="etiqueta">${etiqueta}</div>
+    <div class="valor"><div class="par">
+      <span class="salida" id="${id}_1"></span><span class="unidad">${u1}</span>
+      <span class="salida" id="${id}_2"></span><span class="unidad">${u2}</span>
+    </div></div></div>`;
+}
+function opciones(campo, lista) {
+  return `<div class="opciones">${lista.map(o =>
+    `<label><input type="radio" name="${campo}" data-opcion="${campo}" value="${escapar(o)}"> ${escapar(o)}</label>`).join("")}</div>`;
+}
+
+function htmlFicha() {
+  return `
+  <div class="barra-ficha no-imprimir">
+    <button class="boton secundario" data-accion="volver">← Mis proyectos</button>
+    <span class="guardado"><span id="estado-guardado"></span> <span id="estado-planilla"></span></span>
+    <span class="espacio"></span>
+    <button class="boton secundario" data-accion="imprimir">🖨️ Imprimir / PDF</button>
+    <button class="boton secundario" data-accion="duplicar">📄 Duplicar</button>
+    <button class="boton peligro" data-accion="eliminar">🗑️ Eliminar</button>
+  </div>
+  <input class="titulo-ficha" type="text" data-campo="nombre" placeholder="Nombre del proyecto">
+
+  <div class="secciones">
+
+    <div class="seccion">
+      <h2>Mi proyecto</h2>
+      <div class="tabla">
+        <div class="fila"><div class="etiqueta">Estado</div><div class="valor">
+          <select data-campo="estado">${CONFIG.estados.map(e => `<option>${escapar(e)}</option>`).join("")}</select></div></div>
+        <div class="fila"><div class="etiqueta">Fecha de inicio</div><div class="valor"><input type="date" data-campo="fecha_inicio"></div></div>
+        <div class="fila"><div class="etiqueta">Fecha de término</div><div class="valor"><input type="date" data-campo="fecha_termino"></div></div>
+        <div class="fila"><div class="etiqueta">Tipo de prenda</div><div class="valor">${opciones("prenda", CONFIG.prendas)}</div></div>
+        <div class="fila"><div class="etiqueta">Construcción</div><div class="valor">${opciones("construccion", CONFIG.construcciones)}</div></div>
+      </div>
+    </div>
+
+    <div class="seccion">
+      <h2>Mi muestra de tensión</h2>
+      <div class="tabla">
+        ${filaNumero("pts_10", "Pts en 10 cm", "Ej: 22")}
+        ${filaNumero("vtas_10", "Vtas en 10 cm", "Ej: 30")}
+        ${filaSalidaPar("pts_por", "Puntos", "pts/cm", "pts/in")}
+        ${filaSalidaPar("vtas_por", "Vueltas", "vtas/cm", "vtas/in")}
+      </div>
+    </div>
+
+    <div class="seccion">
+      <h2>Hilado y agujas</h2>
+      <div class="tabla">
+        ${filaTexto("hilado", "Hilado (nombre)", "Ej: Merino Sport")}
+        ${filaTexto("composicion", "Composición", "Ej: 100% merino")}
+        ${filaTexto("grosor", "Grosor", "Ej: Sport / DK")}
+        ${filaTexto("color", "Color", "")}
+        ${filaTexto("lote", "Lote de tintura", "")}
+        ${filaTexto("tienda", "Tienda / proveedor", "")}
+        ${filaTexto("aguja", "Número de aguja", "Ej: 4 mm")}
+      </div>
+      <div class="tabla">
+        <div class="tabla-titulo"><span>Cada madeja trae</span></div>
+        ${filaPar("metraje_madeja", "Metraje", "m")}
+        ${filaNumero("gramos_madeja", "Peso (g)", "Ej: 100")}
+        ${filaNumero("madejas_compradas", "Madejas que tengo", "Ej: 5")}
+        ${filaSalidaPar("total_disponible", "Metraje total", "m", "yd")}
+      </div>
+    </div>
+
+    <div class="seccion">
+      <h2>Mis medidas corporales</h2>
+      <div class="tabla">
+        <div class="tabla-titulo"><span>CUERPO</span><span>cm · in</span></div>
+        ${CUERPO.map(([c, e]) => filaPar(c, e)).join("")}
+      </div>
+      <div class="tabla">
+        <div class="tabla-titulo"><span>PRENDA</span><span>cm · in</span></div>
+        ${filaPar("holgura", "Holgura", "cm", true)}
+        ${filaSalidaPar("contorno_prenda", "Contorno pecho", "cm", "in")}
+        ${PRENDA.map(([c, e]) => filaPar(c, e)).join("")}
+      </div>
+      <p class="nota-tabla">El contorno de pecho de la prenda se calcula solo: contorno del cuerpo + holgura (la holgura puede ser negativa, por ejemplo -4).</p>
+    </div>
+
+    <div class="seccion ancha">
+      <h2>Mis cálculos de puntos y vueltas</h2>
+      <div style="overflow-x:auto">
+      <table class="calculos">
+        <thead><tr><th>Sección</th><th>Medida (cm · in)</th><th>Número</th><th class="no-imprimir"></th></tr></thead>
+        <tbody id="tabla-calculos"></tbody>
+      </table>
+      </div>
+      <div class="botonera no-imprimir" style="margin-top:0.7rem">
+        <button class="boton secundario" data-accion="agregar-fila">➕ Agregar otra sección</button>
+      </div>
+      <p class="nota-tabla">Las medidas vienen de tus medidas corporales y de la prenda. El borde inferior y las secciones que agregues se escriben aquí mismo.</p>
+    </div>
+
+    <div class="seccion">
+      <h2>Metraje</h2>
+      <div class="tabla">
+        <div class="tabla-titulo"><span>¿Cuántas madejas necesito?</span></div>
+        ${filaPar("necesito", "Metraje que pide el patrón", "m")}
+      </div>
+      <div id="r-madejas"></div>
+      <div class="tabla" style="margin-top:0.9rem">
+        <div class="tabla-titulo"><span>¿Cuánto hilo me queda?</span></div>
+        ${filaNumero("sobrante_g", "Gramos que me sobran", "Ej: 35")}
+      </div>
+      <div id="r-sobrante"></div>
+    </div>
+
+    <div class="seccion">
+      <h2>Conversor metros · yardas</h2>
+      <div class="tabla">
+        ${filaPar("conversor", "Escribe en cualquiera", "m")}
+      </div>
+      <p class="nota-tabla">1 yarda = 0,9144 metros · 1 metro = 1,0936 yardas</p>
+      <h2 style="margin-top:1.2rem">Notas</h2>
+      <textarea data-campo="notas" placeholder="Cambios al patrón, ideas, cómo quedó la muestra, lo que aprendí…"></textarea>
+    </div>
+
+  </div>`;
+}
+
+// ---------- Vista: lista de proyectos ----------
+let filtroActual = "Todos";
+
+function mostrarLista() {
+  $("#vista-ficha").hidden = true;
+  const vista = $("#vista-lista");
+  vista.hidden = false;
+  const ordenados = [...proyectos].sort((a, b) => (b.actualizado || 0) - (a.actualizado || 0));
+  const visibles = filtroActual === "Todos" ? ordenados : ordenados.filter(p => (p.v.estado || CONFIG.estados[0]) === filtroActual);
+
+  const filtros = ["Todos", ...CONFIG.estados].map(f => {
+    const n = f === "Todos" ? proyectos.length : proyectos.filter(p => (p.v.estado || CONFIG.estados[0]) === f).length;
+    return `<button class="filtro ${f === filtroActual ? "activo" : ""}" data-filtro="${escapar(f)}">${escapar(f)} (${n})</button>`;
+  }).join("");
+
+  let contenido;
+  if (!proyectos.length) {
+    contenido = `<div class="vacio">Todavía no tienes proyectos.<br>Toca <b>➕ Nuevo proyecto</b> para empezar tu primera ficha.</div>`;
+  } else if (!visibles.length) {
+    contenido = `<div class="vacio">No hay proyectos con el estado «${escapar(filtroActual)}».</div>`;
+  } else {
+    contenido = `<div class="tarjetas">${visibles.map(p => {
+      const v = p.v;
+      const estado = v.estado || CONFIG.estados[0];
+      const fechas = [v.fecha_inicio && "Inicio " + fechaBonita(v.fecha_inicio), v.fecha_termino && "Término " + fechaBonita(v.fecha_termino)].filter(Boolean).join(" · ");
+      const prenda = [v.prenda, v.construccion].filter(Boolean).join(" · ");
+      const hilo = [v.hilado, v.color].filter(Boolean).join(" · ");
+      return `<button class="tarjeta" data-abrir="${p.id}">
+        <span class="estado ${claseEstado(estado)}">${escapar(estado)}</span>
+        <h3>${escapar(v.nombre || "Proyecto sin nombre")}</h3>
+        ${prenda ? `<span class="dato">${escapar(prenda)}</span>` : ""}
+        ${hilo ? `<span class="dato">🧶 ${escapar(hilo)}</span>` : ""}
+        ${fechas ? `<span class="dato">${escapar(fechas)}</span>` : ""}
+      </button>`;
+    }).join("")}</div>`;
+  }
+
+  vista.innerHTML = `
+    ${proyectos.length ? `<div class="filtros">${filtros}</div>` : ""}
+    ${contenido}
+    ${!almacenamientoDisponible ? `<p class="resultado">Este navegador no permite guardar datos. Tus cambios se perderán al cerrar la página.</p>` : ""}
+    ${htmlPanelPlanilla()}
+    <div class="respaldo no-imprimir">
+      <p><b>Copia de seguridad.</b> Tus proyectos se guardan solo en este dispositivo y en este navegador. Descarga una copia de vez en cuando, y úsala para pasar tus proyectos del computador al celular (o al revés).</p>
+      <div class="botonera">
+        <button class="boton secundario" data-accion="exportar">📥 Descargar copia de seguridad</button>
+        <button class="boton secundario" data-accion="importar">📤 Cargar copia de seguridad</button>
+      </div>
+    </div>`;
+  actualizarIndicadores();
+  window.scrollTo(0, 0);
+}
+
+function htmlPanelPlanilla() {
+  if (!CONFIG.urlPlanilla.trim()) return "";
+  const tieneClave = !!leerLocal(CLAVE_PLANILLA, "");
+  if (!tieneClave) {
+    return `<div class="respaldo no-imprimir">
+      <p><b>☁️ Planilla de Google.</b> Escribe la clave que pusiste en el código de tu planilla. Se pide una sola vez en cada dispositivo.</p>
+      <div class="botonera" style="align-items:center">
+        <input type="text" id="clave-planilla" autocomplete="off" placeholder="Tu clave" style="padding:0.55rem 0.7rem;border:1.5px solid var(--borde);border-radius:8px;min-width:200px">
+        <button class="boton" data-accion="guardar-clave">Conectar</button>
+      </div>
+    </div>`;
+  }
+  return `<div class="respaldo no-imprimir">
+    <p><b>☁️ Planilla de Google.</b> Cada vez que guardas un proyecto, se actualiza su fila en tu planilla.</p>
+    <p id="estado-planilla-lista"></p>
+    <div class="botonera">
+      <button class="boton secundario" data-accion="enviar-todo">🔄 Enviar todo de nuevo</button>
+      <button class="boton secundario" data-accion="cambiar-clave">🔑 Cambiar clave</button>
+    </div>
+  </div>`;
+}
+
+// ---------- Vista: ficha de un proyecto ----------
+let proyectoActual = null;
+
+function mostrarFicha(id) {
+  const p = buscar(id);
+  if (!p) { location.hash = ""; return; }
+  proyectoActual = p;
+  $("#vista-lista").hidden = true;
+  const vista = $("#vista-ficha");
+  vista.hidden = false;
+  vista.innerHTML = htmlFicha();
+  rellenarFicha(p);
+  dibujarTablaCalculos(p);
+  actualizarCalculos(p);
+  $("#estado-guardado").textContent = "✓ Guardado";
+  actualizarIndicadores();
+  window.scrollTo(0, 0);
+}
+
+function rellenarFicha(p) {
+  const v = p.v;
+  $$("[data-campo]", $("#vista-ficha")).forEach(el => { el.value = v[el.dataset.campo] ?? (el.dataset.campo === "estado" ? CONFIG.estados[0] : ""); });
+  $$("[data-num]", $("#vista-ficha")).forEach(el => { el.value = fmt(v[el.dataset.num]); });
+  $$("[data-opcion]", $("#vista-ficha")).forEach(el => { el.checked = v[el.dataset.opcion] === el.value; });
+  $$("[data-par]", $("#vista-ficha")).forEach(el => rellenarPar(el, v[el.dataset.par]));
+}
+
+function factor(tipo) { return tipo === "cm" ? CM_POR_PULGADA : METROS_POR_YARDA; }
+function rellenarPar(el, valorBase) {
+  if (valorBase === null || valorBase === undefined || valorBase === "") { el.value = ""; return; }
+  el.value = el.dataset.u === "1" ? fmt(valorBase) : fmt(valorBase / factor(el.dataset.tipo));
+}
+
+// Valor de una medida (en cm) por nombre de campo, incluido el contorno calculado de la prenda
+function medida(p, campo) {
+  const v = p.v;
+  if (campo === "contorno_prenda") {
+    if (v.c_pecho == null) return null;
+    const total = v.c_pecho + (v.holgura || 0);
+    return total > 0 ? total : null;
+  }
+  return v[campo] ?? null;
+}
+
+function textoMedida(cm) {
+  return cm == null ? "" : fmt(cm) + " cm · " + fmt(cm / CM_POR_PULGADA) + " in";
+}
+
+function dibujarTablaCalculos(p) {
+  const filasFijas = CALCULOS_FIJOS.map(([nombre, campo, unidad]) => {
+    const celdaMedida = campo === "borde_inferior"
+      ? `<div class="par">
+           <input type="text" inputmode="decimal" data-par="borde_inferior" data-tipo="cm" data-u="1" aria-label="Borde inferior en cm"><span class="unidad">cm</span>
+           <input type="text" inputmode="decimal" data-par="borde_inferior" data-tipo="cm" data-u="2" aria-label="Borde inferior en in"><span class="unidad">in</span>
+         </div>`
+      : `<span class="salida" data-medida="${campo}"></span>`;
+    return `<tr><td>${nombre}</td><td>${celdaMedida}</td><td class="numero" data-resultado="${campo}" data-unidad="${unidad}"></td><td class="no-imprimir"></td></tr>`;
+  }).join("");
+
+  const filasExtra = (p.extras || []).map(f => `
+    <tr data-extra="${f.id}">
+      <td><input type="text" data-extra-campo="nombre" value="${escapar(f.nombre)}" placeholder="Ej: Ancho de puño"></td>
+      <td><div class="par">
+        <input type="text" inputmode="decimal" data-extra-campo="cm1" aria-label="Medida en cm"><span class="unidad">cm</span>
+        <input type="text" inputmode="decimal" data-extra-campo="cm2" aria-label="Medida en in"><span class="unidad">in</span>
+      </div></td>
+      <td><div style="display:flex;gap:0.4rem;align-items:center">
+        <span class="numero" data-resultado-extra></span>
+        <select data-extra-campo="tipo" style="width:auto">
+          <option value="pts" ${f.tipo === "pts" ? "selected" : ""}>pts</option>
+          <option value="vtas" ${f.tipo === "vtas" ? "selected" : ""}>vtas</option>
+        </select></div></td>
+      <td class="no-imprimir"><button class="quitar" data-accion="quitar-fila" data-id="${f.id}" aria-label="Quitar fila">✕</button></td>
+    </tr>`).join("");
+
+  $("#tabla-calculos").innerHTML = filasFijas + filasExtra;
+  $$("[data-par='borde_inferior']").forEach(el => rellenarPar(el, p.v.borde_inferior));
+  (p.extras || []).forEach(f => {
+    const tr = $(`[data-extra="${f.id}"]`);
+    if (f.cm != null) {
+      $("[data-extra-campo='cm1']", tr).value = fmt(f.cm);
+      $("[data-extra-campo='cm2']", tr).value = fmt(f.cm / CM_POR_PULGADA);
+    }
+  });
+}
+
+function actualizarCalculos(p) {
+  const v = p.v;
+  const ptsCm = v.pts_10 != null ? v.pts_10 / 10 : null;
+  const vtasCm = v.vtas_10 != null ? v.vtas_10 / 10 : null;
+  const pon = (id, texto) => { const el = $("#" + id); if (!el) return; el.textContent = texto || "—"; el.classList.toggle("vacia", !texto); };
+
+  // Muestra
+  pon("pts_por_1", ptsCm != null ? fmt(ptsCm) : "");
+  pon("pts_por_2", ptsCm != null ? fmt(ptsCm * CM_POR_PULGADA) : "");
+  pon("vtas_por_1", vtasCm != null ? fmt(vtasCm) : "");
+  pon("vtas_por_2", vtasCm != null ? fmt(vtasCm * CM_POR_PULGADA) : "");
+
+  // Contorno de la prenda
+  const contorno = medida(p, "contorno_prenda");
+  pon("contorno_prenda_1", contorno != null ? fmt(contorno) : "");
+  pon("contorno_prenda_2", contorno != null ? fmt(contorno / CM_POR_PULGADA) : "");
+
+  // Metraje total disponible
+  const total = (v.metraje_madeja != null && v.madejas_compradas != null) ? v.metraje_madeja * v.madejas_compradas : null;
+  pon("total_disponible_1", total != null ? fmt(total, 1) : "");
+  pon("total_disponible_2", total != null ? fmt(total / METROS_POR_YARDA, 1) : "");
+
+  // Tabla de cálculos (filas fijas)
+  $$("[data-medida]").forEach(el => {
+    const cm = medida(p, el.dataset.medida);
+    el.textContent = cm != null ? textoMedida(cm) : "—";
+    el.classList.toggle("vacia", cm == null);
+  });
+  $$("[data-resultado]").forEach(el => {
+    const cm = medida(p, el.dataset.resultado);
+    const unidad = el.dataset.unidad;
+    const porCm = unidad === "pts" ? ptsCm : vtasCm;
+    el.textContent = (cm != null && porCm != null) ? redondear(cm * porCm) + " " + unidad : unidad;
+    el.style.color = (cm != null && porCm != null) ? "" : "#c2b3ad";
+  });
+  // Filas agregadas
+  (p.extras || []).forEach(f => {
+    const tr = $(`[data-extra="${f.id}"]`);
+    if (!tr) return;
+    const porCm = f.tipo === "vtas" ? vtasCm : ptsCm;
+    const el = $("[data-resultado-extra]", tr);
+    el.textContent = (f.cm != null && porCm != null) ? String(redondear(f.cm * porCm)) : "";
+  });
+
+  // ¿Cuántas madejas necesito?
+  const rMadejas = $("#r-madejas");
+  if (v.necesito == null) {
+    rMadejas.innerHTML = `<div class="resultado vacio-r">Escribe el metraje que pide el patrón.</div>`;
+  } else if (v.metraje_madeja == null) {
+    rMadejas.innerHTML = `<div class="resultado vacio-r">Completa el metraje de cada madeja (en «Hilado y agujas»).</div>`;
+  } else {
+    const exactas = v.necesito / v.metraje_madeja;
+    const madejas = Math.ceil(Number(exactas.toFixed(6)));
+    let texto = `Necesitas <b>${madejas} ${madejas === 1 ? "madeja" : "madejas"}</b> (${fmt(exactas)} exactas) para ${fmt(v.necesito, 1)} m · ${fmt(v.necesito / METROS_POR_YARDA, 1)} yd.`;
+    if (v.madejas_compradas != null) {
+      const dif = v.madejas_compradas - madejas;
+      texto += dif >= 0
+        ? `<br>Tienes ${fmt(v.madejas_compradas)}: ${dif === 0 ? "justo lo necesario" : "te sobran " + fmt(dif)}.`
+        : `<br>Tienes ${fmt(v.madejas_compradas)}: te ${-dif === 1 ? "falta 1 madeja" : "faltan " + fmt(-dif) + " madejas"}.`;
+    }
+    rMadejas.innerHTML = `<div class="resultado">${texto}</div>`;
+  }
+
+  // ¿Cuánto hilo me queda?
+  const rSobrante = $("#r-sobrante");
+  if (v.sobrante_g == null) {
+    rSobrante.innerHTML = `<div class="resultado vacio-r">Pesa lo que te sobra y escribe los gramos.</div>`;
+  } else if (v.metraje_madeja == null || v.gramos_madeja == null) {
+    rSobrante.innerHTML = `<div class="resultado vacio-r">Completa el metraje y el peso de cada madeja (en «Hilado y agujas»).</div>`;
+  } else {
+    const metros = v.sobrante_g * v.metraje_madeja / v.gramos_madeja;
+    rSobrante.innerHTML = `<div class="resultado">Con ${fmt(v.sobrante_g)} g te quedan <b>${fmt(metros, 1)} m · ${fmt(metros / METROS_POR_YARDA, 1)} yd</b> aprox.</div>`;
+  }
+}
+
+// ---------- Guardar mientras escribes ----------
+let temporizadorGuardar;
+function cambio(p) {
+  p.actualizado = Date.now();
+  $("#estado-guardado").textContent = "Guardando…";
+  clearTimeout(temporizadorGuardar);
+  temporizadorGuardar = setTimeout(() => {
+    if (guardarProyectos()) $("#estado-guardado").textContent = "✓ Guardado";
+    else $("#estado-guardado").textContent = "⚠️ Sin guardar";
+    marcarPendiente(p.id);
+  }, 400);
+}
+
+function marcarInvalido(el, valor) {
+  el.classList.toggle("invalido", Number.isNaN(valor));
+}
+
+$("#vista-ficha").addEventListener("input", e => {
+  const p = proyectoActual;
+  if (!p) return;
+  const el = e.target;
+
+  if (el.dataset.campo) {
+    p.v[el.dataset.campo] = el.value;
+  } else if (el.dataset.num) {
+    const n = leer(el.value);
+    marcarInvalido(el, n);
+    p.v[el.dataset.num] = (n === null || Number.isNaN(n)) ? null : n;
+  } else if (el.dataset.par) {
+    const n = leer(el.value);
+    marcarInvalido(el, n);
+    const f = factor(el.dataset.tipo);
+    const base = (n === null || Number.isNaN(n)) ? null : (el.dataset.u === "1" ? n : n * f);
+    p.v[el.dataset.par] = base;
+    // Actualiza la casilla gemela (cm ↔ in, m ↔ yd)
+    $$(`[data-par="${el.dataset.par}"]`).forEach(otro => { if (otro !== el) rellenarPar(otro, base); });
+  } else if (el.dataset.extraCampo) {
+    const tr = el.closest("[data-extra]");
+    const fila = p.extras.find(f => f.id === tr.dataset.extra);
+    const campo = el.dataset.extraCampo;
+    if (campo === "nombre") fila.nombre = el.value;
+    else if (campo === "tipo") fila.tipo = el.value;
+    else {
+      const n = leer(el.value);
+      marcarInvalido(el, n);
+      fila.cm = (n === null || Number.isNaN(n)) ? null : (campo === "cm1" ? n : n * CM_POR_PULGADA);
+      const gemela = $(`[data-extra-campo="${campo === "cm1" ? "cm2" : "cm1"}"]`, tr);
+      gemela.value = fila.cm == null ? "" : (campo === "cm1" ? fmt(fila.cm / CM_POR_PULGADA) : fmt(fila.cm));
+    }
+  } else {
+    return;
+  }
+  actualizarCalculos(p);
+  cambio(p);
+});
+
+$("#vista-ficha").addEventListener("change", e => {
+  const p = proyectoActual;
+  if (!p) return;
+  const el = e.target;
+  if (el.dataset.opcion) { p.v[el.dataset.opcion] = el.value; cambio(p); }
+  else if (el.dataset.extraCampo === "tipo") {
+    const tr = el.closest("[data-extra]");
+    p.extras.find(f => f.id === tr.dataset.extra).tipo = el.value;
+    actualizarCalculos(p); cambio(p);
+  }
+});
+
+// ---------- Botones ----------
+function crearProyecto() {
+  const p = { id: nuevoId(), creado: Date.now(), actualizado: Date.now(), v: { nombre: "", estado: CONFIG.estados[0] }, extras: [] };
+  proyectos.push(p);
+  guardarProyectos();
+  marcarPendiente(p.id);
+  location.hash = "#/p/" + p.id;
+  setTimeout(() => { const t = $(".titulo-ficha"); if (t) t.focus(); }, 50);
+}
+$("#nuevo").addEventListener("click", crearProyecto);
+
+document.addEventListener("click", e => {
+  const boton = e.target.closest("[data-accion], [data-abrir], [data-filtro]");
+  if (!boton) return;
+  if (boton.dataset.abrir) { location.hash = "#/p/" + boton.dataset.abrir; return; }
+  if (boton.dataset.filtro) { filtroActual = boton.dataset.filtro; mostrarLista(); return; }
+
+  const p = proyectoActual;
+  switch (boton.dataset.accion) {
+    case "volver": location.hash = ""; break;
+    case "imprimir": window.print(); break;
+    case "duplicar": {
+      const copia = JSON.parse(JSON.stringify(p));
+      copia.id = nuevoId();
+      copia.creado = copia.actualizado = Date.now();
+      copia.v.nombre = (p.v.nombre || "Proyecto") + " (copia)";
+      copia.v.estado = CONFIG.estados[0];
+      copia.v.fecha_inicio = copia.v.fecha_termino = "";
+      copia.extras = (copia.extras || []).map(f => ({ ...f, id: nuevoId() }));
+      proyectos.push(copia);
+      guardarProyectos();
+      marcarPendiente(copia.id);
+      location.hash = "#/p/" + copia.id;
+      aviso("Proyecto duplicado. Ahora estás en la copia.");
+      break;
+    }
+    case "eliminar":
+      if (confirm("¿Eliminar «" + (p.v.nombre || "Proyecto sin nombre") + "»? No se puede deshacer.")) {
+        proyectos = proyectos.filter(x => x.id !== p.id);
+        guardarProyectos();
+        marcarEliminado(p.id);
+        location.hash = "";
+        aviso("Proyecto eliminado.");
+      }
+      break;
+    case "agregar-fila":
+      p.extras = p.extras || [];
+      p.extras.push({ id: nuevoId(), nombre: "", tipo: "pts", cm: null });
+      dibujarTablaCalculos(p);
+      actualizarCalculos(p);
+      cambio(p);
+      { const filas = $$("[data-extra] [data-extra-campo='nombre']"); filas[filas.length - 1].focus(); }
+      break;
+    case "quitar-fila":
+      p.extras = p.extras.filter(f => f.id !== boton.dataset.id);
+      dibujarTablaCalculos(p);
+      actualizarCalculos(p);
+      cambio(p);
+      break;
+    case "guardar-clave": {
+      const clave = $("#clave-planilla").value.trim();
+      if (!clave) { aviso("Escribe la clave que pusiste en el código de la planilla."); break; }
+      escribirLocal(CLAVE_PLANILLA, clave);
+      estadoPlanilla = "";
+      // Envía todos los proyectos la primera vez
+      proyectos.forEach(x => { if (!pendientes.guardar.includes(x.id)) pendientes.guardar.push(x.id); });
+      escribirLocal(CLAVE_PENDIENTES, pendientes);
+      mostrarLista();
+      aviso("Clave guardada en este dispositivo. Enviando tus proyectos…");
+      programarEnvio(300);
+      break;
+    }
+    case "cambiar-clave":
+      try { localStorage.removeItem(CLAVE_PLANILLA); } catch (e) {}
+      estadoPlanilla = "";
+      mostrarLista();
+      break;
+    case "enviar-todo":
+      proyectos.forEach(x => { if (!pendientes.guardar.includes(x.id)) pendientes.guardar.push(x.id); });
+      escribirLocal(CLAVE_PENDIENTES, pendientes);
+      estadoPlanilla = "";
+      programarEnvio(100);
+      aviso("Enviando todos tus proyectos a la planilla…");
+      break;
+    case "exportar": exportar(); break;
+    case "importar": $("#archivo-importar").click(); break;
+  }
+});
+
+// ---------- Copia de seguridad ----------
+function exportar() {
+  const datos = JSON.stringify({ app: "bitacora-tejido", version: 1, fecha: hoyISO(), proyectos }, null, 2);
+  const blob = new Blob([datos], { type: "application/json" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = "bitacora-respaldo-" + hoyISO() + ".json";
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
+  aviso("Copia de seguridad descargada.");
+}
+
+$("#archivo-importar").addEventListener("change", async e => {
+  const archivo = e.target.files[0];
+  e.target.value = "";
+  if (!archivo) return;
+  try {
+    const datos = JSON.parse(await archivo.text());
+    const lista = Array.isArray(datos) ? datos : datos.proyectos;
+    if (!Array.isArray(lista)) throw new Error("formato");
+    let nuevos = 0, actualizados = 0;
+    lista.forEach(p => {
+      if (!p || !p.id || !p.v) return;
+      const i = proyectos.findIndex(x => x.id === p.id);
+      if (i === -1) { proyectos.push(p); nuevos++; marcarPendiente(p.id); }
+      else if ((p.actualizado || 0) > (proyectos[i].actualizado || 0)) { proyectos[i] = p; actualizados++; marcarPendiente(p.id); }
+    });
+    guardarProyectos();
+    mostrarLista();
+    aviso(`Copia cargada: ${nuevos} proyecto(s) nuevo(s), ${actualizados} actualizado(s).`);
+  } catch (err) {
+    aviso("Ese archivo no es una copia de seguridad de la bitácora.");
+  }
+});
+
+// ---------- Navegación (lista ↔ ficha) ----------
+function enrutar() {
+  const m = location.hash.match(/^#\/p\/(.+)$/);
+  if (m) mostrarFicha(m[1]);
+  else { proyectoActual = null; mostrarLista(); }
+}
+window.addEventListener("hashchange", enrutar);
+enrutar();
+// Al abrir la bitácora, envía lo que haya quedado pendiente
+programarEnvio(1500);
+
+// ---------- Funciona sin internet e instalable ----------
+if ("serviceWorker" in navigator) {
+  window.addEventListener("load", () => navigator.serviceWorker.register("sw.js").catch(() => {}));
+}
+</script>
+</body>
+</html>
